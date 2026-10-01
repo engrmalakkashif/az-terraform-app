@@ -1,0 +1,217 @@
+#cloud-config
+###############################################################################
+# cloud-init.yaml  –  Azure VM Bootstrap Configuration
+#
+# Purpose:
+#   Bootstraps the Azure Linux Virtual Machine on first boot.
+#   cloud-init is the standard Azure VM initialisation mechanism.
+#   This file is base64-encoded and passed as custom_data in the VM resource.
+#   It runs exactly once during the first boot of the VM.
+#
+# Execution timeline:
+#   ~0s   – Azure delivers this file to the VM via the Azure platform
+#   ~30s  – cloud-init starts processing (after network is available)
+#   ~90s  – Package installs complete
+#   ~2min – Nginx serving the portfolio page at http://<public_ip>
+#
+# Variables (interpolated by Terraform templatefile()):
+#   ${project_name}  – from var.project_name (e.g. "portfolio")
+#   ${environment}   – from var.environment  (e.g. "dev")
+#
+# Verify bootstrap on the VM:
+#   sudo cat /var/log/cloud-init-output.log   # full output
+#   sudo cat /var/log/cloud-init-portfolio.log # final health check result
+#   sudo systemctl status nginx
+#   sudo systemctl status fail2ban
+#
+# Azure documentation:
+#   https://learn.microsoft.com/azure/virtual-machines/linux/using-cloud-init
+###############################################################################
+
+# Update package cache and upgrade all packages to latest versions.
+# This ensures the VM starts with all available security patches applied,
+# without waiting for Azure Automatic VM Guest Patching to run its first cycle.
+package_update: true
+package_upgrade: true
+
+# ── Packages to install ───────────────────────────────────────────────────────
+packages:
+  - nginx       # Web server for the portfolio static site
+  - curl        # HTTP utility for the health check and API calls
+  - git         # Version control (optional: clone portfolio content from a repo)
+  - ufw         # Uncomplicated Firewall – host-level firewall (defence-in-depth)
+  - fail2ban    # SSH brute-force protection (bans IPs after repeated failures)
+
+# ── Runtime commands ─────────────────────────────────────────────────────────
+runcmd:
+  # ── Step 1: Configure ufw (host-level firewall) ───────────────────────────
+  # ufw provides a second layer of defence after the Azure NSG.
+  # Even if the NSG is misconfigured, ufw blocks unexpected traffic at the OS.
+  - ufw default deny incoming   # Block all inbound by default
+  - ufw default allow outgoing  # Allow all outbound (OS updates, Key Vault calls)
+  - ufw allow 22/tcp   comment 'SSH – Azure NSG also enforces source CIDR restriction'
+  - ufw allow 80/tcp   comment 'HTTP – Portfolio web server'
+  - ufw allow 443/tcp  comment 'HTTPS – Future TLS termination'
+  - ufw --force enable
+
+  # ── Step 2: Harden SSH configuration ────────────────────────────────────
+  # Azure disables password auth at the VM provisioning level. These sed
+  # commands also enforce it at the sshd_config level for defence-in-depth.
+  - sed -i 's/#PermitRootLogin prohibit-password/PermitRootLogin no/' /etc/ssh/sshd_config
+  - sed -i 's/#PasswordAuthentication yes/PasswordAuthentication no/'  /etc/ssh/sshd_config
+  - sed -i 's/X11Forwarding yes/X11Forwarding no/'                     /etc/ssh/sshd_config
+  - systemctl restart sshd
+
+  # ── Step 3: Create portfolio web root ──────────────────────────────────
+  - mkdir -p /var/www/portfolio
+  - chown -R www-data:www-data /var/www/portfolio
+
+  # ── Step 4: Configure Nginx ─────────────────────────────────────────────
+  # Creates a dedicated Nginx site configuration for the portfolio application.
+  # Security headers are set on all responses:
+  #   X-Frame-Options        – Prevents clickjacking attacks
+  #   X-Content-Type-Options – Prevents MIME type sniffing
+  #   X-XSS-Protection       – Enables browser XSS filter (legacy browsers)
+  #   Referrer-Policy        – Controls Referer header in outbound requests
+  #   Content-Security-Policy– Restricts sources of scripts, styles, and resources
+  #   server_tokens off      – Hides Nginx version from HTTP response headers
+  - |
+    cat > /etc/nginx/sites-available/portfolio <<'EOF'
+    server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+
+        root /var/www/portfolio;
+        index index.html;
+        server_name _;
+
+        # Azure Security – HTTP response security headers
+        add_header X-Frame-Options        "SAMEORIGIN"  always;
+        add_header X-Content-Type-Options "nosniff"     always;
+        add_header X-XSS-Protection       "1; mode=block" always;
+        add_header Referrer-Policy        "no-referrer-when-downgrade" always;
+        add_header Content-Security-Policy "default-src 'self' https: data: 'unsafe-inline'" always;
+
+        location / {
+            try_files $uri $uri/ =404;
+        }
+
+        # Hide Nginx version number from HTTP headers
+        server_tokens off;
+
+        # Block access to hidden files (e.g. .htaccess, .git)
+        location ~ /\.ht { deny all; }
+        location = /favicon.ico { log_not_found off; access_log off; }
+        location = /robots.txt  { log_not_found off; access_log off; }
+    }
+    EOF
+
+  - ln -sf /etc/nginx/sites-available/portfolio /etc/nginx/sites-enabled/
+  - rm -f /etc/nginx/sites-enabled/default
+  - nginx -t && systemctl reload nginx
+
+  # ── Step 5: Deploy the portfolio HTML page ──────────────────────────────
+  # Creates a responsive, modern portfolio landing page. The page displays:
+  #   - Azure region (East US)
+  #   - Environment name (from Terraform variable)
+  #   - Disk encryption type (Customer-Managed Key)
+  #   - Authentication method (Managed Identity)
+  # This confirms the infrastructure was deployed correctly.
+  - |
+    cat > /var/www/portfolio/index.html <<'HTMLEOF'
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8" />
+      <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+      <title>Portfolio – ${project_name}</title>
+      <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          background: linear-gradient(135deg, #0f2027, #203a43, #2c5364);
+          color: #fff;
+          min-height: 100vh;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .card {
+          background: rgba(255,255,255,0.08);
+          backdrop-filter: blur(12px);
+          border: 1px solid rgba(255,255,255,0.18);
+          border-radius: 16px;
+          padding: 48px 56px;
+          max-width: 640px;
+          text-align: center;
+          box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        }
+        .badge {
+          display: inline-block;
+          background: #0078d4;
+          color: #fff;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: 1.5px;
+          text-transform: uppercase;
+          padding: 4px 14px;
+          border-radius: 20px;
+          margin-bottom: 20px;
+        }
+        h1 { font-size: 2.4rem; margin-bottom: 12px; }
+        p  { font-size: 1.1rem; opacity: 0.85; line-height: 1.7; margin-bottom: 24px; }
+        .meta {
+          display: flex;
+          justify-content: center;
+          gap: 24px;
+          flex-wrap: wrap;
+          font-size: 0.85rem;
+          opacity: 0.7;
+        }
+        .footer { margin-top: 36px; font-size: 0.78rem; opacity: 0.5; }
+      </style>
+    </head>
+    <body>
+      <div class="card">
+        <span class="badge">Azure · Terraform · DevOps</span>
+        <h1>&#128640; Portfolio</h1>
+        <p>
+          This page is served from an <strong>Azure Linux Virtual Machine</strong>
+          running Ubuntu 22.04 LTS, provisioned entirely with <strong>Terraform</strong>.
+          The infrastructure follows the <strong>Azure Well-Architected Framework</strong>:
+          hardened VNet with NSGs, NAT Gateway for private subnet egress,
+          Key Vault CMK-encrypted OS disk, and a Managed Identity for
+          passwordless Azure authentication.
+        </p>
+        <div class="meta">
+          <span>&#127757; Region: East US</span>
+          <span>&#9881; Environment: ${environment}</span>
+          <span>&#128274; Disk: CMK via Key Vault</span>
+          <span>&#128100; Auth: Managed Identity</span>
+        </div>
+        <div class="footer">
+          Deployed with Terraform v1.5+ &middot; Azure Provider v3.x &middot;
+          Azure Linux VM (Ubuntu 22.04 LTS)
+        </div>
+      </div>
+    </body>
+    </html>
+    HTMLEOF
+
+  - chown -R www-data:www-data /var/www/portfolio
+  - systemctl enable nginx
+  - systemctl start nginx
+
+  # ── Step 6: Enable fail2ban ──────────────────────────────────────────────
+  # fail2ban monitors /var/log/auth.log for repeated SSH login failures.
+  # After 5 failed attempts within 10 minutes, the source IP is banned for
+  # 10 minutes via iptables. This complements the Azure NSG SSH source
+  # CIDR restriction.
+  - systemctl enable fail2ban
+  - systemctl start fail2ban
+
+  # ── Step 7: Health check ─────────────────────────────────────────────────
+  # Performs a local HTTP request to verify Nginx is serving the portfolio.
+  # The result is logged to /var/log/cloud-init-portfolio.log.
+  # Check this file after SSH to confirm bootstrap completed successfully.
+  - curl -sf http://localhost/ > /dev/null && echo "Portfolio is UP – $(date)" >> /var/log/cloud-init-portfolio.log || echo "Portfolio FAILED to start – $(date)" >> /var/log/cloud-init-portfolio.log

@@ -1,0 +1,45 @@
+# Terraform state files – NEVER commit these
+*.tfstate
+*.tfstate.*
+*.tfstate.backup
+
+# Terraform plan files
+*.tfplan
+*.plan
+
+# Backend config (contains storage account names, possibly secrets)
+backend.conf
+
+# Terraform working directories
+.terraform/
+.terraform.lock.hcl
+
+# Crash logs
+crash.log
+crash.*.log
+
+# Override files (local developer overrides)
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# Environment variable files with secrets
+.env
+.env.*
+*.auto.tfvars   # auto-loaded tfvars may contain secrets
+
+# SSH keys – never commit private keys
+*.pem
+*.key
+id_rsa
+id_rsa.pub
+
+# OS artifacts
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
