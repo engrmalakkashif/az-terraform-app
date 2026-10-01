@@ -10,7 +10,7 @@ variable "project_name" {
     Short project identifier used as a prefix in all Azure resource names.
     Example: "portfolio" produces "vnet-portfolio-dev", "nsg-public-portfolio-dev".
   EOT
-  type = string
+  type        = string
 }
 
 variable "environment" {
@@ -18,7 +18,7 @@ variable "environment" {
     Deployment stage (dev | staging | prod).
     Appended to resource names to distinguish environments in the Azure Portal.
   EOT
-  type = string
+  type        = string
 }
 
 variable "location" {
@@ -31,7 +31,7 @@ variable "resource_group_name" {
     Name of the Azure Resource Group in which all networking resources are created.
     The Resource Group must already exist (created in the root module).
   EOT
-  type = string
+  type        = string
 }
 
 variable "vnet_address_space" {
@@ -40,7 +40,7 @@ variable "vnet_address_space" {
     All subnets must fall within this address space.
     Example: ["12.0.0.0/16"] provides 65,536 IP addresses.
   EOT
-  type = list(string)
+  type        = list(string)
 }
 
 variable "public_subnet_prefix" {
@@ -49,7 +49,7 @@ variable "public_subnet_prefix" {
     Must be a subset of vnet_address_space.
     Example: "12.0.1.0/24"  (256 addresses, 251 usable after Azure reservations)
   EOT
-  type = string
+  type        = string
 }
 
 variable "private_subnet_prefix" {
@@ -58,7 +58,7 @@ variable "private_subnet_prefix" {
     Must be a subset of vnet_address_space and must not overlap with public_subnet_prefix.
     Example: "12.0.2.0/24"  (256 addresses, 251 usable after Azure reservations)
   EOT
-  type = string
+  type        = string
 }
 
 variable "enable_nat_gateway" {
@@ -70,8 +70,8 @@ variable "enable_nat_gateway" {
     outbound internet connectivity.
     Set to false in dev environments to reduce the ~$32/month NAT Gateway cost.
   EOT
-  type    = bool
-  default = true
+  type        = bool
+  default     = true
 }
 
 variable "allowed_ssh_cidr" {
@@ -81,8 +81,8 @@ variable "allowed_ssh_cidr" {
     Production recommendation: restrict to your office/VPN IP, e.g. "203.0.113.10/32".
     Default "0.0.0.0/0" allows SSH from any IP (acceptable for dev only).
   EOT
-  type    = string
-  default = "0.0.0.0/0"
+  type        = string
+  default     = "0.0.0.0/0"
 }
 
 variable "tags" {
@@ -90,6 +90,6 @@ variable "tags" {
     Map of Azure tags applied to all networking resources (VNet, subnets, NSGs,
     NAT Gateway, Route Tables). Tags appear in Azure Cost Management and Portal.
   EOT
-  type    = map(string)
-  default = {}
+  type        = map(string)
+  default     = {}
 }

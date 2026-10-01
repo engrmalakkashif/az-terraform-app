@@ -13,7 +13,7 @@ output "vm_id" {
       az vm start --ids <value>
       az vm deallocate --ids <value>
   EOT
-  value = azurerm_linux_virtual_machine.portfolio.id
+  value       = azurerm_linux_virtual_machine.portfolio.id
 }
 
 output "vm_name" {
@@ -24,7 +24,7 @@ output "vm_name" {
       az vm run-command invoke -g rg-portfolio-dev -n <value> \
         --command-id RunShellScript --scripts "systemctl status nginx"
   EOT
-  value = azurerm_linux_virtual_machine.portfolio.name
+  value       = azurerm_linux_virtual_machine.portfolio.name
 }
 
 output "private_ip_address" {
@@ -33,7 +33,7 @@ output "private_ip_address" {
     Used for VNet-internal communication from the private subnet to the VM.
     Dynamically assigned from the subnet address range by Azure DHCP.
   EOT
-  value = azurerm_network_interface.portfolio.private_ip_address
+  value       = azurerm_network_interface.portfolio.private_ip_address
 }
 
 output "public_ip_address" {
@@ -43,7 +43,7 @@ output "public_ip_address" {
     Open the portfolio in a browser: http://<value>
     Available ~2 minutes after terraform apply (cloud-init bootstrap time).
   EOT
-  value = azurerm_public_ip.portfolio.ip_address
+  value       = azurerm_public_ip.portfolio.ip_address
 }
 
 output "public_ip_fqdn" {
@@ -54,7 +54,7 @@ output "public_ip_fqdn" {
     Open the portfolio in a browser: http://<value>
     Resolves to the same static IP as public_ip_address.
   EOT
-  value = azurerm_public_ip.portfolio.fqdn
+  value       = azurerm_public_ip.portfolio.fqdn
 }
 
 output "public_ip_id" {
@@ -63,7 +63,7 @@ output "public_ip_id" {
     Used when associating the Public IP with an Azure Load Balancer frontend,
     or when configuring Azure DDoS Protection plan exclusions.
   EOT
-  value = azurerm_public_ip.portfolio.id
+  value       = azurerm_public_ip.portfolio.id
 }
 
 output "nic_id" {
@@ -72,5 +72,5 @@ output "nic_id" {
     Used when adding additional IP configurations, enabling Azure Accelerated
     Networking, or troubleshooting network flow issues in Network Watcher.
   EOT
-  value = azurerm_network_interface.portfolio.id
+  value       = azurerm_network_interface.portfolio.id
 }

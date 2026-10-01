@@ -31,7 +31,7 @@ output "resource_group_name" {
     Use this in az CLI commands:
       az resource list --resource-group <value> --output table
   EOT
-  value = azurerm_resource_group.main.name
+  value       = azurerm_resource_group.main.name
 }
 
 output "resource_group_id" {
@@ -54,7 +54,7 @@ output "vnet_id" {
     The VNet is the private, isolated network boundary (12.0.0.0/16).
     Used when peering VNets or linking Private DNS Zones.
   EOT
-  value = module.networking.vnet_id
+  value       = module.networking.vnet_id
 }
 
 output "vnet_name" {
@@ -68,7 +68,7 @@ output "public_subnet_id" {
     Resources placed here have access to a Static Public IP and are protected
     by the public NSG (allows HTTP 80, HTTPS 443, SSH 22).
   EOT
-  value = module.networking.public_subnet_id
+  value       = module.networking.public_subnet_id
 }
 
 output "private_subnet_id" {
@@ -77,7 +77,7 @@ output "private_subnet_id" {
     Resources here are not directly reachable from the internet.
     Outbound traffic routes through the NAT Gateway.
   EOT
-  value = module.networking.private_subnet_id
+  value       = module.networking.private_subnet_id
 }
 
 output "nat_gateway_public_ip" {
@@ -86,7 +86,7 @@ output "nat_gateway_public_ip" {
     All outbound traffic from the private subnet originates from this prefix.
     Add this to allowlists on external APIs or services.
   EOT
-  value = module.networking.nat_gateway_public_ip
+  value       = module.networking.nat_gateway_public_ip
 }
 
 output "public_nsg_id" {
@@ -95,7 +95,7 @@ output "public_nsg_id" {
     public subnet. Allows inbound HTTP (80), HTTPS (443), SSH (22).
     Explicitly denies all other inbound traffic at priority 4000.
   EOT
-  value = module.networking.public_nsg_id
+  value       = module.networking.public_nsg_id
 }
 
 output "private_nsg_id" {
@@ -104,7 +104,7 @@ output "private_nsg_id" {
     private subnet. Allows only VNet-internal inbound traffic.
     Blocks all direct inbound internet traffic.
   EOT
-  value = module.networking.private_nsg_id
+  value       = module.networking.private_nsg_id
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -117,7 +117,7 @@ output "portfolio_vm_id" {
     Use in az CLI:
       az vm show --ids <value>
   EOT
-  value = module.compute.vm_id
+  value       = module.compute.vm_id
 }
 
 output "portfolio_vm_name" {
@@ -131,7 +131,7 @@ output "portfolio_public_ip" {
     Open in a browser to view the portfolio: http://<value>
     Available ~2 minutes after terraform apply completes (cloud-init runtime).
   EOT
-  value = module.compute.public_ip_address
+  value       = module.compute.public_ip_address
 }
 
 output "portfolio_public_fqdn" {
@@ -141,7 +141,7 @@ output "portfolio_public_fqdn" {
     Example: portfolio-dev.eastus.cloudapp.azure.com
     Open in a browser: http://<value>
   EOT
-  value = module.compute.public_ip_fqdn
+  value       = module.compute.public_ip_fqdn
 }
 
 output "portfolio_ssh_command" {
@@ -155,7 +155,7 @@ output "portfolio_ssh_command" {
         --query value --output tsv > ~/.ssh/portfolio.pem
       chmod 600 ~/.ssh/portfolio.pem
   EOT
-  value = "ssh -i <private_key_path> ${var.admin_username}@${module.compute.public_ip_address}"
+  value       = "ssh -i <private_key_path> ${var.admin_username}@${module.compute.public_ip_address}"
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -168,7 +168,7 @@ output "key_vault_id" {
     Used to configure access policies, link Disk Encryption Sets, or reference
     the vault in other Terraform workspaces.
   EOT
-  value = module.security.key_vault_id
+  value       = module.security.key_vault_id
 }
 
 output "key_vault_name" {
@@ -177,7 +177,7 @@ output "key_vault_name" {
     Use in az CLI commands:
       az keyvault secret list --vault-name <value>
   EOT
-  value = module.security.key_vault_name
+  value       = module.security.key_vault_name
 }
 
 output "key_vault_uri" {
@@ -189,7 +189,7 @@ output "key_vault_uri" {
     Azure SDK DefaultAzureCredential (works automatically with the VM's
     Managed Identity).
   EOT
-  value = module.security.key_vault_uri
+  value       = module.security.key_vault_uri
 }
 
 output "managed_identity_id" {
@@ -198,7 +198,7 @@ output "managed_identity_id" {
     Use this ID when assigning Azure RBAC roles to the identity, for example
     granting it access to an Azure Storage Account or Service Bus.
   EOT
-  value = module.security.managed_identity_id
+  value       = module.security.managed_identity_id
 }
 
 output "managed_identity_client_id" {
@@ -208,7 +208,7 @@ output "managed_identity_client_id" {
     Azure SDK with a specific Managed Identity (ManagedIdentityCredential).
     Not required when using DefaultAzureCredential on a VM with a single UAMI.
   EOT
-  value = module.security.managed_identity_client_id
+  value       = module.security.managed_identity_client_id
 }
 
 output "ssh_private_key_secret_name" {
@@ -220,7 +220,7 @@ output "ssh_private_key_secret_name" {
         --name <value> \
         --query value --output tsv > ~/.ssh/portfolio.pem
   EOT
-  value = azurerm_key_vault_secret.ssh_private_key.name
+  value       = azurerm_key_vault_secret.ssh_private_key.name
 }
 
 # ─────────────────────────────────────────────────────────────────────────────

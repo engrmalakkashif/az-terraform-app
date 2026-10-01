@@ -15,7 +15,7 @@ output "vnet_id" {
       - Linking a Private DNS Zone to this VNet
       - Granting Key Vault network access via service endpoints
   EOT
-  value = azurerm_virtual_network.main.id
+  value       = azurerm_virtual_network.main.id
 }
 
 output "vnet_name" {
@@ -29,7 +29,7 @@ output "public_subnet_id" {
     Required when placing a Network Interface (NIC) or Azure resource into
     the public subnet.
   EOT
-  value = azurerm_subnet.public.id
+  value       = azurerm_subnet.public.id
 }
 
 output "private_subnet_id" {
@@ -38,7 +38,7 @@ output "private_subnet_id" {
     Required when placing a backend resource (database, internal service) into
     the private subnet, or when configuring Private Endpoints.
   EOT
-  value = azurerm_subnet.private.id
+  value       = azurerm_subnet.private.id
 }
 
 output "public_nsg_id" {
@@ -47,7 +47,7 @@ output "public_nsg_id" {
     Used in the compute module to also associate the NSG at the NIC level
     (defence-in-depth: NSG enforced at both subnet and NIC).
   EOT
-  value = azurerm_network_security_group.public.id
+  value       = azurerm_network_security_group.public.id
 }
 
 output "private_nsg_id" {
@@ -60,7 +60,7 @@ output "nat_gateway_id" {
     Azure Resource ID of the NAT Gateway.
     Returns null when enable_nat_gateway is false.
   EOT
-  value = var.enable_nat_gateway ? azurerm_nat_gateway.main[0].id : null
+  value       = var.enable_nat_gateway ? azurerm_nat_gateway.main[0].id : null
 }
 
 output "nat_gateway_public_ip" {
@@ -70,7 +70,7 @@ output "nat_gateway_public_ip" {
     within this prefix. Add this to allowlists on external APIs and services.
     Returns null when enable_nat_gateway is false.
   EOT
-  value = var.enable_nat_gateway ? azurerm_public_ip_prefix.nat[0].ip_prefix : null
+  value       = var.enable_nat_gateway ? azurerm_public_ip_prefix.nat[0].ip_prefix : null
 }
 
 output "public_route_table_id" {

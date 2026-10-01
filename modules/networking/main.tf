@@ -379,7 +379,7 @@ resource "azurerm_public_ip_prefix" "nat" {
   name                = "ippre-nat-${var.project_name}-${var.environment}"
   location            = var.location
   resource_group_name = var.resource_group_name
-  prefix_length       = 31    # /31 = 2 public IPs (smallest available prefix)
+  prefix_length       = 31 # /31 = 2 public IPs (smallest available prefix)
   sku                 = "Standard"
   zones               = ["1"] # Single zone for dev. Use zone-redundant in prod.
   tags                = var.tags
@@ -392,7 +392,7 @@ resource "azurerm_nat_gateway" "main" {
   location                = var.location
   resource_group_name     = var.resource_group_name
   sku_name                = "Standard"
-  idle_timeout_in_minutes = 10  # TCP idle connection timeout (4–120 minutes)
+  idle_timeout_in_minutes = 10 # TCP idle connection timeout (4–120 minutes)
   zones                   = ["1"]
   tags                    = var.tags
 }

@@ -243,7 +243,7 @@ resource "azurerm_key_vault_key" "disk_encryption" {
     automatic {
       time_before_expiry = "P30D" # ISO 8601 duration: 30 days before expiry
     }
-    expire_after         = "P1Y"  # ISO 8601 duration: 1 year
+    expire_after         = "P1Y" # ISO 8601 duration: 1 year
     notify_before_expiry = "P30D"
   }
 

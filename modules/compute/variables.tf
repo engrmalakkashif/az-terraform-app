@@ -10,7 +10,7 @@ variable "project_name" {
     Short project identifier used as a prefix in Azure resource names.
     Example: "portfolio" produces "vm-portfolio-dev", "pip-portfolio-dev".
   EOT
-  type = string
+  type        = string
 }
 
 variable "environment" {
@@ -19,7 +19,7 @@ variable "environment" {
     distinguish environments. Also interpolated into the cloud-init template
     and displayed on the portfolio landing page.
   EOT
-  type = string
+  type        = string
 }
 
 variable "location" {
@@ -32,7 +32,7 @@ variable "resource_group_name" {
     Name of the Azure Resource Group in which compute resources are created.
     Must already exist (created in the root module).
   EOT
-  type = string
+  type        = string
 }
 
 variable "vm_size" {
@@ -43,8 +43,8 @@ variable "vm_size" {
     For higher traffic: Standard_B2ms (2 vCPU, 8 GB), Standard_D2s_v3 (2 vCPU, 8 GB).
     List all sizes: az vm list-sizes --location eastus --output table
   EOT
-  type    = string
-  default = "Standard_B2s"
+  type        = string
+  default     = "Standard_B2s"
 }
 
 variable "admin_username" {
@@ -54,8 +54,8 @@ variable "admin_username" {
     authentication only (password auth is disabled).
     Azure reserved names that cannot be used: root, admin, administrator.
   EOT
-  type    = string
-  default = "azureuser"
+  type        = string
+  default     = "azureuser"
 }
 
 variable "ssh_public_key" {
@@ -65,8 +65,8 @@ variable "ssh_public_key" {
     The corresponding private key is stored in Azure Key Vault.
     Marked sensitive to prevent the key from appearing in terraform plan output.
   EOT
-  type      = string
-  sensitive = true
+  type        = string
+  sensitive   = true
 }
 
 variable "public_subnet_id" {
@@ -76,7 +76,7 @@ variable "public_subnet_id" {
     making the portfolio VM reachable from the internet.
     Provided by the networking module output: module.networking.public_subnet_id
   EOT
-  type = string
+  type        = string
 }
 
 variable "public_nsg_id" {
@@ -86,7 +86,7 @@ variable "public_nsg_id" {
     (this module) for defence-in-depth NSG enforcement.
     Provided by the networking module output: module.networking.public_nsg_id
   EOT
-  type = string
+  type        = string
 }
 
 variable "managed_identity_id" {
@@ -96,7 +96,7 @@ variable "managed_identity_id" {
     (Key Vault, Storage, Service Bus) via the Azure Instance Metadata Service (IMDS).
     Provided by the security module output: module.security.managed_identity_id
   EOT
-  type = string
+  type        = string
 }
 
 variable "disk_encryption_set_id" {
@@ -107,8 +107,8 @@ variable "disk_encryption_set_id" {
     When null, the OS disk uses the default Azure Platform-Managed Key (PMK).
     Provided by the security module output: module.security.disk_encryption_set_id
   EOT
-  type    = string
-  default = null
+  type        = string
+  default     = null
 }
 
 variable "os_disk_size_gb" {
@@ -117,8 +117,8 @@ variable "os_disk_size_gb" {
     The disk is provisioned as Premium_LRS (SSD-backed).
     Minimum supported value: 30 GB (Ubuntu 22.04 LTS base size).
   EOT
-  type    = number
-  default = 30
+  type        = number
+  default     = 30
 }
 
 variable "tags" {
@@ -126,6 +126,6 @@ variable "tags" {
     Map of Azure tags applied to all compute resources (Public IP, NIC, VM,
     VM Extension). Tags appear in Azure Cost Management and the Azure Portal.
   EOT
-  type    = map(string)
-  default = {}
+  type        = map(string)
+  default     = {}
 }

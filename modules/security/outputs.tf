@@ -14,7 +14,7 @@ output "managed_identity_id" {
     Also used when assigning Azure RBAC roles to the identity:
       az role assignment create --assignee <value> --role "Storage Blob Data Reader" ...
   EOT
-  value = azurerm_user_assigned_identity.portfolio.id
+  value       = azurerm_user_assigned_identity.portfolio.id
 }
 
 output "managed_identity_client_id" {
@@ -24,7 +24,7 @@ output "managed_identity_client_id" {
       ManagedIdentityCredential(client_id="<value>")
     Not required when DefaultAzureCredential is used on a VM with a single UAMI.
   EOT
-  value = azurerm_user_assigned_identity.portfolio.client_id
+  value       = azurerm_user_assigned_identity.portfolio.client_id
 }
 
 output "managed_identity_principal_id" {
@@ -33,7 +33,7 @@ output "managed_identity_principal_id" {
     Used when creating Key Vault access policies or Azure RBAC assignments
     that target this Managed Identity by its Azure AD object ID.
   EOT
-  value = azurerm_user_assigned_identity.portfolio.principal_id
+  value       = azurerm_user_assigned_identity.portfolio.principal_id
 }
 
 output "key_vault_id" {
@@ -42,7 +42,7 @@ output "key_vault_id" {
     Used in the root module to write the SSH private key secret:
       azurerm_key_vault_secret.ssh_private_key.key_vault_id = module.security.key_vault_id
   EOT
-  value = azurerm_key_vault.main.id
+  value       = azurerm_key_vault.main.id
 }
 
 output "key_vault_uri" {
@@ -53,7 +53,7 @@ output "key_vault_uri" {
     application to enable secret retrieval using the Azure SDK with the VM's
     Managed Identity (no credentials required in the application code).
   EOT
-  value = azurerm_key_vault.main.vault_uri
+  value       = azurerm_key_vault.main.vault_uri
 }
 
 output "key_vault_name" {
@@ -63,7 +63,7 @@ output "key_vault_name" {
       az keyvault secret list --vault-name <value>
       az keyvault secret show --vault-name <value> --name portfolio-vm-ssh-private-key
   EOT
-  value = azurerm_key_vault.main.name
+  value       = azurerm_key_vault.main.name
 }
 
 output "disk_encryption_set_id" {
@@ -74,7 +74,7 @@ output "disk_encryption_set_id" {
     This ensures the VM OS disk is encrypted using the Customer-Managed Key
     stored in Key Vault rather than the default platform-managed key.
   EOT
-  value = azurerm_disk_encryption_set.main.id
+  value       = azurerm_disk_encryption_set.main.id
 }
 
 output "disk_encryption_key_id" {
@@ -83,5 +83,5 @@ output "disk_encryption_key_id" {
     Format: https://<vault>.vault.azure.net/keys/<name>/<version>
     Useful for auditing which key version is currently in use.
   EOT
-  value = azurerm_key_vault_key.disk_encryption.id
+  value       = azurerm_key_vault_key.disk_encryption.id
 }

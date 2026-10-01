@@ -27,9 +27,9 @@
 # Project Identity
 # ─────────────────────────────────────────────────────────────────────────────
 
-project_name = "portfolio"   # prefix used in all Azure resource names
-environment  = "dev"         # used in resource names and tags
-location     = "eastus"      # Azure East US region
+project_name = "portfolio" # prefix used in all Azure resource names
+environment  = "dev"       # used in resource names and tags
+location     = "eastus"    # Azure East US region
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Azure Resource Tags
@@ -66,7 +66,7 @@ enable_nat_gateway = true
 # ─────────────────────────────────────────────────────────────────────────────
 vm_size         = "Standard_B2s"
 admin_username  = "azureuser"
-os_disk_size_gb = 30   # Azure Managed Disk (Premium SSD, CMK encrypted)
+os_disk_size_gb = 30 # Azure Managed Disk (Premium SSD, CMK encrypted)
 
 # ─────────────────────────────────────────────────────────────────────────────
 # Azure Network Security Group – SSH Access Rule

@@ -30,8 +30,8 @@ variable "project_name" {
     Must be 1–8 lowercase alphanumeric characters.
     Example resource name: rg-portfolio-dev, vnet-portfolio-dev.
   EOT
-  type    = string
-  default = "portfolio"
+  type        = string
+  default     = "portfolio"
 
   validation {
     condition     = can(regex("^[a-z0-9]{1,8}$", var.project_name))
@@ -46,8 +46,8 @@ variable "environment" {
     NAT Gateway, SSH CIDR restrictions).
     Allowed values: dev | staging | prod
   EOT
-  type    = string
-  default = "dev"
+  type        = string
+  default     = "dev"
 
   validation {
     condition     = contains(["dev", "staging", "prod"], var.environment)
@@ -61,8 +61,8 @@ variable "location" {
     Use 'az account list-locations --output table' to see all valid values.
     Default: eastus (East US – one of the lowest-latency Azure regions).
   EOT
-  type    = string
-  default = "eastus"
+  type        = string
+  default     = "eastus"
 }
 
 variable "tags" {
@@ -72,7 +72,7 @@ variable "tags" {
     Azure Portal and Azure Cost Management + Billing.
     Recommended keys: Project, Environment, ManagedBy, Owner, CostCenter.
   EOT
-  type = map(string)
+  type        = map(string)
   default = {
     Project     = "portfolio"
     Environment = "dev"
@@ -92,8 +92,8 @@ variable "vnet_address_space" {
     in this deployment. All subnets are carved from this address space.
     Default: 12.0.0.0/16  (65,536 available IP addresses)
   EOT
-  type    = list(string)
-  default = ["12.0.0.0/16"]
+  type        = list(string)
+  default     = ["12.0.0.0/16"]
 }
 
 variable "public_subnet_prefix" {
@@ -105,8 +105,8 @@ variable "public_subnet_prefix" {
     allows inbound HTTP (80), HTTPS (443), and SSH (22).
     Default: 12.0.1.0/24  (256 addresses)
   EOT
-  type    = string
-  default = "12.0.1.0/24"
+  type        = string
+  default     = "12.0.1.0/24"
 }
 
 variable "private_subnet_prefix" {
@@ -118,8 +118,8 @@ variable "private_subnet_prefix" {
     Azure NAT Gateway in the public subnet.
     Default: 12.0.2.0/24  (256 addresses)
   EOT
-  type    = string
-  default = "12.0.2.0/24"
+  type        = string
+  default     = "12.0.2.0/24"
 }
 
 variable "enable_nat_gateway" {
@@ -132,8 +132,8 @@ variable "enable_nat_gateway" {
     Set to false in dev environments to reduce cost if private subnet
     outbound access is not required.
   EOT
-  type    = bool
-  default = true
+  type        = bool
+  default     = true
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -149,8 +149,8 @@ variable "vm_size" {
     Standard_D2s_v3 (2 vCPU, 8 GB, better network throughput).
     Full list: az vm list-sizes --location eastus --output table
   EOT
-  type    = string
-  default = "Standard_B2s"
+  type        = string
+  default     = "Standard_B2s"
 }
 
 variable "admin_username" {
@@ -161,8 +161,8 @@ variable "admin_username" {
     private key stored in Azure Key Vault.
     Azure restrictions: must not be root, admin, or administrator.
   EOT
-  type    = string
-  default = "azureuser"
+  type        = string
+  default     = "azureuser"
 
   validation {
     condition     = !contains(["root", "admin", "administrator"], lower(var.admin_username))
@@ -178,8 +178,8 @@ variable "allowed_ssh_cidr" {
     The default 0.0.0.0/0 is acceptable for dev but must be tightened before
     deploying to staging or production.
   EOT
-  type    = string
-  default = "0.0.0.0/0"
+  type        = string
+  default     = "0.0.0.0/0"
 
   validation {
     condition     = can(cidrhost(var.allowed_ssh_cidr, 0))
@@ -194,8 +194,8 @@ variable "os_disk_size_gb" {
     Customer-Managed Key (CMK) via the Disk Encryption Set in the security module.
     30 GB is sufficient for the portfolio Nginx workload.
   EOT
-  type    = number
-  default = 30
+  type        = number
+  default     = 30
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -209,8 +209,8 @@ variable "key_vault_sku" {
     premium  – HSM-backed keys (FIPS 140-2 Level 2); required for compliance
                workloads that mandate hardware key protection.
   EOT
-  type    = string
-  default = "standard"
+  type        = string
+  default     = "standard"
 
   validation {
     condition     = contains(["standard", "premium"], var.key_vault_sku)
@@ -227,8 +227,8 @@ variable "key_vault_soft_delete_days" {
     Purge protection (enabled in the security module) prevents permanent deletion
     even by administrators during this retention window.
   EOT
-  type    = number
-  default = 30
+  type        = number
+  default     = 30
 }
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -242,8 +242,8 @@ variable "backend_resource_group" {
     terraform init (see the bootstrap steps in INFRASTRUCTURE_GUIDE.md).
     This variable is informational only; the backend block reads from backend.conf.
   EOT
-  type    = string
-  default = "rg-tfstate"
+  type        = string
+  default     = "rg-tfstate"
 }
 
 variable "backend_storage_account" {
@@ -253,8 +253,8 @@ variable "backend_storage_account" {
     3–24 lowercase alphanumeric characters, no hyphens.
     This variable is informational only; the backend block reads from backend.conf.
   EOT
-  type    = string
-  default = "stportfoliotfstate"
+  type        = string
+  default     = "stportfoliotfstate"
 }
 
 variable "backend_container" {
@@ -265,6 +265,6 @@ variable "backend_container" {
     resource is required.
     This variable is informational only; the backend block reads from backend.conf.
   EOT
-  type    = string
-  default = "tfstate"
+  type        = string
+  default     = "tfstate"
 }
